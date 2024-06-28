@@ -8,7 +8,35 @@ const port = 3000;
 app.use(bodyParser.json());
 
 // Local storage for medicines (simulating a database)
-let medicines = [];
+let medicines = [
+  {
+    id: 1,
+    compartment_number: 1,
+    medicine_name: "Paracetamol",
+    times_per_day: 3,
+    times: ["morning", "afternoon", "evening"],
+    dose_per_time: "1 tablet",
+    quantity: 30,
+  },
+  {
+    id: 2,
+    compartment_number: 2,
+    medicine_name: "Amoxicillin",
+    times_per_day: 2,
+    times: ["morning", "evening"],
+    dose_per_time: "1 capsule",
+    quantity: 20,
+  },
+  {
+    id: 3,
+    compartment_number: 3,
+    medicine_name: "Loratadine",
+    times_per_day: 1,
+    times: ["morning"],
+    dose_per_time: "1 tablet",
+    quantity: 10,
+  },
+];
 
 // Create a new medicine
 app.post("/medicine", (req, res) => {
@@ -28,8 +56,7 @@ app.post("/medicine", (req, res) => {
 
 // Get all medicines
 app.get("/medicines", (req, res) => {
-  res.send("Medicine Details");
-  //res.json(medicines);
+  res.json(medicines);
 });
 
 // Get a medicine by ID
@@ -75,3 +102,4 @@ app.delete("/medicine/:id", (req, res) => {
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });
+
