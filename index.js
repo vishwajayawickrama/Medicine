@@ -1,51 +1,28 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const fs = require("fs");
+const path = require("path");
 
 const app = express();
 const port = 3000;
+const medicinesFilePath = path.join(__dirname, 'medicines.json');
 
 // Middleware
 app.use(bodyParser.json());
 
-// Local storage for medicines (simulating a database)
-let medicines = [
-  {
-    id: 1,
-    compartment_number: 1,
-    medicine_name: "Paracetamol",
-    times_per_day: 3,
-    times: ["0900", "1200", "1500"],
-    dose_per_time: 1,
-    quantity: 20,
-  },
-  {
-    id: 2,
-    compartment_number: 2,
-    medicine_name: "Amoxicillin",
-    times_per_day: 2,
-    times: ["0600", "1800"],
-    dose_per_time: 2,
-    quantity: 20,
-  },
-  {
-    id: 3,
-    compartment_number: 3,
-    medicine_name: "Loratadine",
-    times_per_day: 1,
-    times: ["1200"],
-    dose_per_time: 3,
-    quantity: 20,
-  },
-  {
-    id: 4,
-    compartment_number: 4,
-    medicine_name: "Omiprazol",
-    times_per_day: 1,
-    times: ["1200"],
-    dose_per_time: 3,
-    quantity: 20,
-  },
-];
+// Helper function to read medicines from the JSON file
+function readMedicines() {
+  const data = fs.readFileSync(medicinesFilePath, 'utf8');
+  return JSON.parse(data);
+}
+
+// Helper function to write medicines to the JSON file
+function writeMedicines(medicines) {
+  fs.writeFileSync(medicinesFilePath, JSON.stringify(medicines, null, 2));
+}
+
+// Initialize medicines from the JSON file
+let medicines = readMedicines();
 
 // Create a new medicine
 app.post("/medicine", (req, res) => {
@@ -60,17 +37,20 @@ app.post("/medicine", (req, res) => {
   };
 
   medicines.push(medicine);
+  writeMedicines(medicines);
   res.send("Medicine added...");
 });
 
 // Get all medicines
 app.get("/medicines", (req, res) => {
+  medicines = readMedicines(); // Ensure the latest data is sent
   res.json(medicines);
 });
 
 // Get a medicine by ID
 app.get("/medicine/:id", (req, res) => {
   const id = parseInt(req.params.id);
+  medicines = readMedicines(); // Ensure the latest data is used
   const medicine = medicines.find((med) => med.id === id);
   if (!medicine) {
     res.status(404).send("Medicine not found");
@@ -82,6 +62,7 @@ app.get("/medicine/:id", (req, res) => {
 // Update a medicine
 app.put("/medicine/:id", (req, res) => {
   const id = parseInt(req.params.id);
+  medicines = readMedicines(); // Ensure the latest data is used
   const index = medicines.findIndex((med) => med.id === id);
   if (index === -1) {
     res.status(404).send("Medicine not found");
@@ -96,6 +77,7 @@ app.put("/medicine/:id", (req, res) => {
       quantity: req.body.quantity,
     };
     medicines[index] = updatedMedicine;
+    writeMedicines(medicines);
     res.send("Medicine updated...");
   }
 });
@@ -103,7 +85,9 @@ app.put("/medicine/:id", (req, res) => {
 // Delete a medicine
 app.delete("/medicine/:id", (req, res) => {
   const id = parseInt(req.params.id);
+  medicines = readMedicines(); // Ensure the latest data is used
   medicines = medicines.filter((med) => med.id !== id);
+  writeMedicines(medicines);
   res.send("Medicine deleted...");
 });
 
@@ -111,4 +95,6 @@ app.delete("/medicine/:id", (req, res) => {
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });
+
+
 
