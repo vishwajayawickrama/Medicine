@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const fs = require("fs");
 const path = require("path");
+const cors = require("cors");
 
 const app = express();
 const port = 3000;
@@ -9,6 +10,7 @@ const medicinesFilePath = path.join(__dirname, 'medicines.json');
 
 // Middleware
 app.use(bodyParser.json());
+app.use(cors());
 
 // Helper function to read medicines from the JSON file
 function readMedicines() {
